@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kasir & Booking Nail Art</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background: #fff0f5;
+    color: #49323c;
+}
+
+.container {
+    max-width: 950px;
+    margin: auto;
+}
+
+h1 {
+    text-align: center;
+    color: #c04d83;
+}
+
+.subtitle {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 14px;
+    margin-bottom: 18px;
+    box-shadow: 0 3px 12px #e6b8cc55;
+}
+
+h2 {
+    color: #c04d83;
+    margin-top: 0;
+}
+
+.form-group {
+    margin-bottom: 14px;
+}
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+input, select, button {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #e4bfd0;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    font-weight: bold;
+    background: #d85b91;
+    color: white;
+    margin-top: 5px;
+}
+
+button:hover {
+    background: #bd4178;
+}
+
+.btn-delete {
+    background: #c94c4c;
+    padding: 7px;
+}
+
+.btn-secondary {
+    background: #826579;
+}
+
+.btn-action {
+    padding: 6px 10px;
+    font-size: 13px;
+    margin-top: 0;
+}
+
+.btn-process {
+    background: #2e8b57;
+}
+
+.btn-process:hover {
+    background: #236b43;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+}
+
+th, td {
+    padding: 10px 5px;
+    border-bottom: 1px solid #f0dce5;
+    text-align: left;
+}
+
+th {
+    background: #fff0f5;
+}
+
+.total {
+    font-size: 22px;
+    font-weight: bold;
+    color: #c04d83;
+}
+
+.money {
+    text-align: right;
+    font-weight: bold;
+}
+
+.change {
+    font-size: 24px;
+    color: #16804a;
+    font-weight: bold;
+}
+
+.message {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #c03955;
+}
+
+#receipt {
+    display: none;
+}
+
+.receipt-header {
+    text-align: center;
+}
+
+.receipt-header h2 {
+    margin-bottom: 5px;
+}
+
+.receipt-footer {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.badge-booking {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    background: #fce4ec;
+    color: #c04d83;
+}
+
+@media (min-width: 650px) {
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+}
+
+@media print {
+    @page {
+        size: 80mm auto;
+        margin: 4mm;
+    }
+
+    body {
+        background: white;
+        padding: 0;
+        margin: 0;
+        color: black;
+        font-family: monospace;
+        font-size: 11px;
+    }
+
+    body * {
+        visibility: hidden;
+    }
+
+    #receipt, #receipt * {
+        visibility: visible;
+    }
+
+    #receipt {
+        display: block !important;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+
+    #receipt table {
+        font-size: 10px;
+    }
+
+    #receipt th {
+        background: white;
+    }
+
+    #receipt th, #receipt td {
+        padding: 5px 2px;
+        border-bottom: 1px dashed #888;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+}
+</style>
+</head>
+
+<body>
+<div class="container no-print">
+
+    <h1>💅 NAIL ART BEAUTY</h1>
+    <p class="subtitle">Sistem Booking & Kasir Pembayaran Tunai</p>
+
+    <!-- 1. DATA PELANGGAN & BOOKING -->
+    <div class="card">
+        <h2>1. Data Pelanggan & Jadwal</h2>
+
+        <div class="form-group">
+            <label>Nama Pelanggan</label>
+            <input type="text" id="customer" placeholder="Masukkan nama pelanggan">
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Tanggal Kedatangan / Booking</label>
+                <input type="date" id="bookingDate">
+            </div>
+
+            <div class="form-group">
+                <label>Jam Kedatangan</label>
+                <input type="time" id="bookingTime">
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. PILIH MENU LAYANAN -->
+    <div class="card">
+        <h2>2. Pilih Menu Nail Art</h2>
+
+        <div class="form-group">
+            <label>Menu Layanan</label>
+            <select id="menu">
+                <option value="Manicure|50000">Manicure - Rp50.000</option>
+                <option value="Pedicure|60000">Pedicure - Rp60.000</option>
+                <option value="Gel Polish|75000">Gel Polish - Rp75.000</option>
+                <option value="Nail Art Simple|100000">Nail Art Simple - Rp100.000</option>
+                <option value="Nail Art Premium|150000">Nail Art Premium - Rp150.000</option>
+                <option value="Nail Extension|200000">Nail Extension - Rp200.000</option>
+                <option value="Remove Gel|30000">Remove Gel - Rp30.000</option>
+                <option value="Nail Repair|25000">Nail Repair - Rp25.000</option>
+            </select>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Jumlah</label>
+                <input type="number" id="qty" min="1" step="1" value="1">
+            </div>
+
+            <div class="form-group">
+                <label>Harga Satuan</label>
+                <input type="text" id="price" readonly>
+            </div>
+        </div>
+
+        <button onclick="addItem()">+ Tambahkan ke Pesanan</button>
+    </div>
+
+    <!-- 3. DAFTAR PESANAN -->
+    <div class="card">
+        <h2>3. Daftar Layanan Dipilih</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Menu</th>
+                    <th>Qty</th>
+                    <th>Harga</th>
+                    <th>Subtotal</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="cart">
+                <tr>
+                    <td colspan="5" style="text-align:center">
+                        Belum ada pesanan
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p class="money total">
+            Total: <span id="total">Rp0</span>
+        </p>
+
+        <button class="btn-secondary" onclick="saveAsBooking()">📅 Simpan Sebagai Booking</button>
+    </div>
+
+    <!-- 4. DAFTAR BOOKING AKTIF -->
+    <div class="card">
+        <h2>📋 Daftar Jadwal Booking</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Pelanggan</th>
+                    <th>Tanggal & Jam</th>
+                    <th>Total</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="bookingList">
+                <tr>
+                    <td colspan="4" style="text-align:center">Belum ada booking tersimpan</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 5. PEMBAYARAN KASIR -->
+    <div class="card">
+        <h2>4. Pembayaran Kasir</h2>
+
+        <div class="form-group">
+            <label>Metode Pembayaran</label>
+            <input type="text" value="CASH / TUNAI SAJA" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Uang dari Pelanggan (Rp)</label>
+            <input type="number" id="cash" min="0" step="1" placeholder="Contoh: 200000" oninput="calculateChange()">
+        </div>
+
+        <p>Total Belanja: <span id="payTotal">Rp0</span></p>
+        <p>Uang Dibayar: <span id="paid">Rp0</span></p>
+
+        <p>Kembalian:</p>
+        <div class="change" id="change">Rp0</div>
+
+        <p id="message" class="message"></p>
+
+        <button onclick="checkout()">Bayar & Cetak Struk</button>
+        <button class="btn-secondary" onclick="resetTransaction()">
+            Transaksi Baru
+        </button>
+    </div>
+</div>
+
+<!-- STRUK YANG AKAN DICETAK -->
+<div id="receipt">
+    <div class="receipt-header">
+        <h2>NAIL ART BEAUTY</h2>
+        <p>Terima kasih telah berkunjung!</p>
+        <hr>
+    </div>
+
+    <p>Tanggal Transaksi: <span id="rDate"></span></p>
+    <p>Jadwal Booking: <span id="rBookingInfo">-</span></p>
+    <p>Pelanggan: <span id="rCustomer"></span></p>
+    <p>Kasir: Admin</p>
+    <hr>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Menu</th>
+                <th>Qty</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody id="rItems"></tbody>
+    </table>
+
+    <hr>
+
+    <table>
+        <tbody>
+            <tr>
+                <td>Total</td>
+                <td id="rTotal" class="money"></td>
+            </tr>
+            <tr>
+                <td>Tunai</td>
+                <td id="rCash" class="money"></td>
+            </tr>
+            <tr>
+                <td>Kembalian</td>
+                <td id="rChange" class="money"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+    <div class="receipt-footer">
+        <p>PEMBAYARAN: CASH / TUNAI</p>
+        <p>Barang/jasa yang sudah dibeli</p>
+        <p>Terima kasih ❤️</p>
+        <p>~ Semoga harimu cantik ~</p>
+    </div>
+</div>
+
+<script>
+const rupiah = angka =>
+    new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        maximumFractionDigits: 0
+    }).format(angka);
+
+let items = [];
+// Mengambil data booking tersimpan dari localStorage secara otomatis
+let bookings = JSON.parse(localStorage.getItem("nail_bookings")) || [];
+let completed = false;
+let activeBookingIndex = null;
+
+// Set default tanggal hari ini
+const today = new Date().toISOString().split('T')[0];
+document.getElementById("bookingDate").value = today;
+document.getElementById("bookingDate").min = today;
+
+function updatePrice() {
+    const parts = document.getElementById("menu").value.split("|");
+    document.getElementById("price").value = rupiah(Number(parts[1]));
+}
+
+document.getElementById("menu").addEventListener("change", updatePrice);
+updatePrice();
+
+function addItem() {
+    if (completed) {
+        alert("Silakan mulai transaksi baru.");
+        return;
+    }
+
+    const parts = document.getElementById("menu").value.split("|");
+    const name = parts[0];
+    const price = Number(parts[1]);
+    const qty = Number(document.getElementById("qty").value);
+
+    if (!Number.isSafeInteger(qty) || qty < 1) {
+        alert("Jumlah pesanan minimal 1.");
+        return;
+    }
+
+    const existing = items.find(item => item.name === name && item.price === price);
+
+    if (existing) {
+        if (!Number.isSafeInteger(existing.qty + qty)) {
+            alert("Jumlah pesanan terlalu besar.");
+            return;
+        }
+        existing.qty += qty;
+    } else {
+        items.push({ name, price, qty });
+    }
+
+    renderCart();
+    document.getElementById("qty").value = 1;
+    document.getElementById("cash").value = "";
+    calculateChange();
+}
+
+function getTotal() {
+    return items.reduce((sum, item) => sum + item.price * item.qty, 0);
+}
+
+function renderCart() {
+    const cart = document.getElementById("cart");
+    cart.innerHTML = "";
+
+    if (items.length === 0) {
+        cart.innerHTML = `
+            <tr><td colspan="5" style="text-align:center">
+                Belum ada pesanan
+            </td></tr>`;
+    }
+
+    items.forEach((item, index) => {
+        const row = document.createElement("tr");
+
+        [
+            item.name,
+            item.qty,
+            rupiah(item.price),
+            rupiah(item.price * item.qty)
+        ].forEach(value => {
+            const cell = document.createElement("td");
+            cell.textContent = value;
+            row.appendChild(cell);
+        });
+
+        const action = document.createElement("td");
+        const btn = document.createElement("button");
+        btn.textContent = "X";
+        btn.className = "btn-delete";
+        btn.style.width = "35px";
+        btn.onclick = () => removeItem(index);
+        action.appendChild(btn);
+        row.appendChild(action);
+
+        cart.appendChild(row);
+    });
+
+    document.getElementById("total").textContent = rupiah(getTotal());
+    document.getElementById("payTotal").textContent = rupiah(getTotal());
+    calculateChange();
+}
+
+function removeItem(index) {
+    if (completed) return;
+    items.splice(index, 1);
+    renderCart();
+}
+
+function calculateChange() {
+    const cashInput = document.getElementById("cash").value;
+    const cash = cashInput === "" ? 0 : Number(cashInput);
+    const total = getTotal();
+
+    document.getElementById("paid").textContent = rupiah(cash);
+    document.getElementById("change").textContent = rupiah(Math.max(0, cash - total));
+
+    const message = document.getElementById("message");
+
+    if (cashInput !== "" && cash < total) {
+        message.textContent = "Uang kurang " + rupiah(total - cash);
+    } else if (total > 0 && cash >= total && cashInput !== "") {
+        message.textContent = "Uang cukup. Siap untuk pembayaran.";
+    } else {
+        message.textContent = "";
+    }
+}
+
+// SIMPAN SEBAGAI BOOKING JADWAL + simpan ke localStorage
+function saveAsBooking() {
+    const customer = document.getElementById("customer").value.trim();
+    const date = document.getElementById("bookingDate").value;
+    const time = document.getElementById("bookingTime").value;
+
+    if (!customer) {
+        alert("Masukkan nama pelanggan terlebih dahulu!");
+        return;
+    }
+    if (!date || !time) {
+        alert("Pilih tanggal dan jam booking terlebih dahulu!");
+        return;
+    }
+    if (items.length === 0) {
+        alert("Pilih minimal satu menu layanan untuk booking!");
+        return;
+    }
+
+    bookings.push({
+        customer,
+        date,
+        time,
+        items: [...items],
+        total: getTotal()
+    });
+
+    // Simpan ke localStorage browser
+    localStorage.setItem("nail_bookings", JSON.stringify(bookings));
+
+    alert(`Booking berhasil disimpan untuk ${customer} pada ${date} jam ${time}`);
+    renderBookings();
+    resetTransaction(true);
+}
+
+function renderBookings() {
+    const list = document.getElementById("bookingList");
+    list.innerHTML = "";
+
+    if (bookings.length === 0) {
+        list.innerHTML = `<tr><td colspan="4" style="text-align:center">Belum ada booking tersimpan</td></tr>`;
+        return;
+    }
+
+    bookings.forEach((b, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td><strong>${b.customer}</strong></td>
+            <td><span class="badge-booking">${b.date} (${b.time})</span></td>
+            <td>${rupiah(b.total)}</td>
+            <td>
+                <button class="btn-action btn-process" onclick="loadBooking(${index})">Proses Kasir</button>
+                <button class="btn-action btn-delete" onclick="cancelBooking(${index})">Batal</button>
+            </td>
+        `;
+        list.appendChild(row);
+    });
+}
+
+function loadBooking(index) {
+    const b = bookings[index];
+    document.getElementById("customer").value = b.customer;
+    document.getElementById("bookingDate").value = b.date;
+    document.getElementById("bookingTime").value = b.time;
+    items = [...b.items];
+    activeBookingIndex = index;
+
+    renderCart();
+    alert(`Data booking atas nama ${b.customer} telah dimuat ke kasir. Silakan lakukan pembayaran.`);
+}
+
+function cancelBooking(index) {
+    if (confirm("Batalkan booking ini?")) {
+        bookings.splice(index, 1);
+        // Perbarui localStorage setelah dihapus
+        localStorage.setItem("nail_bookings", JSON.stringify(bookings));
+        renderBookings();
+    }
+}
+
+function checkout() {
+    if (completed) {
+        alert("Transaksi ini sudah selesai.");
+        return;
+    }
+
+    if (items.length === 0) {
+        alert("Tambahkan menu pesanan terlebih dahulu.");
+        return;
+    }
+
+    const cashInput = document.getElementById("cash").value;
+    const cash = Number(cashInput);
+    const total = getTotal();
+
+    if (cashInput === "" || !Number.isSafeInteger(cash) || cash < 0) {
+        alert("Masukkan jumlah uang tunai yang valid.");
+        return;
+    }
+
+    if (cash < total) {
+        alert("Uang pelanggan kurang " + rupiah(total - cash));
+        return;
+    }
+
+    const now = new Date();
+    const bDate = document.getElementById("bookingDate").value;
+    const bTime = document.getElementById("bookingTime").value;
+
+    document.getElementById("rDate").textContent = now.toLocaleString("id-ID");
+    document.getElementById("rBookingInfo").textContent = bDate && bTime ? `${bDate} @ ${bTime}` : "Langsung (Walk-in)";
+    document.getElementById("rCustomer").textContent = document.getElementById("customer").value.trim() || "Umum";
+
+    const receiptItems = document.getElementById("rItems");
+    receiptItems.innerHTML = "";
+
+    items.forEach(item => {
+        const row = document.createElement("tr");
+        const name = document.createElement("td");
+        name.textContent = item.name;
+        const qty = document.createElement("td");
+        qty.textContent = item.qty;
+        const subtotal = document.createElement("td");
+        subtotal.textContent = rupiah(item.price * item.qty);
+
+        row.append(name, qty, subtotal);
+        receiptItems.appendChild(row);
+    });
+
+    document.getElementById("rTotal").textContent = rupiah(total);
+    document.getElementById("rCash").textContent = rupiah(cash);
+    document.getElementById("rChange").textContent = rupiah(cash - total);
+
+    completed = true;
+
+    // Hapus dari daftar booking aktif jika berasal dari booking dan update localStorage
+    if (activeBookingIndex !== null) {
+        bookings.splice(activeBookingIndex, 1);
+        localStorage.setItem("nail_bookings", JSON.stringify(bookings));
+        renderBookings();
+        activeBookingIndex = null;
+    }
+
+    window.print();
+
+    document.getElementById("message").textContent = "Transaksi selesai. Silakan mulai transaksi baru.";
+}
+
+function resetTransaction(skipConfirm = false) {
+    if (!skipConfirm && !completed && items.length > 0) {
+        if (!confirm("Batalkan transaksi saat ini?")) return;
+    }
+
+    items = [];
+    completed = false;
+    activeBookingIndex = null;
+
+    document.getElementById("customer").value = "";
+    document.getElementById("cash").value = "";
+    document.getElementById("qty").value = 1;
+    document.getElementById("bookingTime").value = "";
+    document.getElementById("message").textContent = "";
+
+    document.getElementById("receipt").style.display = "none";
+
+    renderCart();
+}
+
+renderCart();
+renderBookings();
+</script>
+</body>
+</html>
